@@ -1,4 +1,10 @@
-const { getGradleVersion, getCliVersion, getReanimatedOverride, getWorkletsOverride, getGestureHandlerOverride } = require('./versionMapping');
+const {
+  getGradleVersion,
+  getCliVersion,
+  getReanimatedOverride,
+  getWorkletsOverride,
+  getGestureHandlerOverride,
+} = require('./versionMapping');
 
 describe('React Native version mapping', () => {
   it('uses the RN 0.87 Android toolchain', () => {
@@ -15,6 +21,6 @@ describe('React Native version mapping', () => {
     expect(getGradleVersion(77)).toBe('8.14.1');
     expect(getReanimatedOverride(85)).toBe('4.3.0');
     expect(getWorkletsOverride(85)).toBe('0.8.1');
-    expect(getGestureHandlerOverride(85)).toBeNull();
+    expect(getGestureHandlerOverride(85)).toBe('^2.29.1');
   });
 });

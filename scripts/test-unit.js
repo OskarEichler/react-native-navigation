@@ -22,12 +22,18 @@ function runAndroidUnitTests() {
     // exec.execSync(`echo y | ${sdkmanager} --update && echo y | ${sdkmanager} --licenses`);
   }
   exec.execSync(`cd playground/android && ./gradlew ${conf}`);
-  exec.execSync(`cd playground/android && ./gradlew :react-native-navigation:pixel3aapi34DebugAndroidTest`);
+  exec.execSync(
+    `cd playground/android && ./gradlew :react-native-navigation:pixel3aapi34DebugAndroidTest`
+  );
 }
 
 function runIosUnitTests() {
   exec.execSync('yarn run pod-install');
-  testTarget('playground', process.env.IOS_TEST_DEVICE || 'iPhone 13', process.env.IOS_TEST_OS || '15.5');
+  testTarget(
+    'playground',
+    process.env.IOS_TEST_DEVICE || 'iPhone 13',
+    process.env.IOS_TEST_OS || 'latest'
+  );
 }
 
 function testTarget(scheme, device, OS = 'latest') {

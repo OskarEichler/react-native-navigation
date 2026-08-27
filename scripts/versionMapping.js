@@ -53,7 +53,7 @@ function getReanimatedOverride(rnMinor) {
 }
 
 function getGestureHandlerOverride(rnMinor) {
-    return rnMinor >= 87 ? '3.2.1' : null;
+    return rnMinor >= 87 ? '3.2.1' : '^2.29.1';
 }
 
 function getWorkletsOverride(rnMinor) {

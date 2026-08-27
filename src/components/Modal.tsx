@@ -1,6 +1,12 @@
-import React, { useLayoutEffect, useRef } from 'react';
-import { requireNativeComponent, View, ViewProps, StyleSheet, Dimensions } from 'react-native';
-import { AnimationOptions, ViewAnimationOptions } from 'src/interfaces/Options';
+import React from 'react';
+import {
+  requireNativeComponent,
+  View,
+  ViewProps,
+  StyleSheet,
+  useWindowDimensions,
+} from 'react-native';
+import { AnimationOptions, ViewAnimationOptions } from '../interfaces/Options';
 
 export interface RNNModalProps extends ViewProps {
   visible: boolean;
@@ -15,20 +21,34 @@ interface AnimatedModalProps extends RNNModalProps {
   animation?: AnimationOptions;
 }
 
-const RNNModalViewManager = requireNativeComponent('RNNModalViewManager');
+const RNNModalViewManager = requireNativeComponent<AnimatedModalProps>('RNNModalViewManager');
 
-const Container = (rnnProps: RNNModalProps) => {
-  const viewRef = useRef<React.ComponentRef<typeof View>>(null);
-
-  useLayoutEffect(() => {
-    const { width, height } = Dimensions.get('window');
-    viewRef.current?.setNativeProps({ width, height });
-  }, []);
+const ModalContent = (props: RNNModalProps) => {
+  const { width, height } = useWindowDimensions();
+  const animation: AnimationOptions =
+    props.animationType === 'none'
+      ? { showModal: { enabled: false }, dismissModal: { enabled: false } }
+      : {
+          showModal: {
+            enter:
+              props.animationType === 'slide'
+                ? slideAnimation(Math.round(height), 0)
+                : showModalFadeEnterAnimations,
+          },
+          dismissModal: {
+            exit:
+              props.animationType === 'slide'
+                ? slideAnimation(0, Math.round(height))
+                : dismissModalFadeExitAnimations,
+          },
+        };
 
   return (
-    <View ref={viewRef} style={styles.container} collapsable={false}>
-      {rnnProps.children}
-    </View>
+    <RNNModalViewManager {...props} style={styles.modal} animation={animation}>
+      <View style={{ width, height }} collapsable={false}>
+        {props.children}
+      </View>
+    </RNNModalViewManager>
   );
 };
 
@@ -40,57 +60,23 @@ export class Modal extends React.Component<RNNModalProps> {
   };
 
   render() {
-    if (!this.props.visible) {
-      return null;
-    }
-    return (
-      <RNNModalViewManager {...this.proccessProps()}>
-        <Container {...this.props} />
-      </RNNModalViewManager>
-    );
-  }
-
-  private proccessProps() {
-    const processed: AnimatedModalProps = { ...this.props, style: styles.modal };
-    if (this.props.animationType === 'none') {
-      processed.animation = {
-        showModal: { enabled: false },
-        dismissModal: { enabled: false },
-      };
-    } else {
-      const isSlide = this.props.animationType === 'slide';
-      processed.animation = {
-        showModal: {
-          enter: isSlide ? showModalSlideEnterAnimations : showModalFadeEnterAnimations,
-        },
-        dismissModal: {
-          exit: isSlide ? dismissModalSlideExitAnimations : dismissModalFadeExitAnimations,
-        },
-      };
-    }
-    return processed;
+    return this.props.visible ? <ModalContent {...this.props} /> : null;
   }
 }
 
-const height = Math.round(Dimensions.get('window').height);
 const SCREEN_ANIMATION_DURATION = 500;
-const showModalSlideEnterAnimations: ViewAnimationOptions = {
-  translationY: {
-    from: height,
-    to: 0,
-    duration: SCREEN_ANIMATION_DURATION,
-    interpolation: { type: 'decelerate' },
-  },
-};
 
-const dismissModalSlideExitAnimations: ViewAnimationOptions = {
-  translationY: {
-    from: 0,
-    to: height,
-    duration: SCREEN_ANIMATION_DURATION,
-    interpolation: { type: 'decelerate' },
-  },
-};
+function slideAnimation(from: number, to: number): ViewAnimationOptions {
+  return {
+    translationY: {
+      from,
+      to,
+      duration: SCREEN_ANIMATION_DURATION,
+      interpolation: { type: 'decelerate' },
+    },
+  };
+}
+
 const showModalFadeEnterAnimations: ViewAnimationOptions = {
   alpha: {
     from: 0,
@@ -112,9 +98,5 @@ const dismissModalFadeExitAnimations: ViewAnimationOptions = {
 const styles = StyleSheet.create({
   modal: {
     position: 'absolute',
-  },
-  container: {
-    top: 0,
-    flex: 1,
   },
 });
