@@ -57,6 +57,7 @@
     "uninstall-android": "cd playground/android && ./gradlew uninstallAll",
     "clean": "node ./scripts/clean",
     "prepare": "bob build",
+    "prepack": "bob build",
     "start": "node ./scripts/start",
     "pod-install": "yarn workspace react-native-navigation-playground pod-install",
     "test-js": "node ./scripts/test-js",
