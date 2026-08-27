@@ -141,7 +141,7 @@ private fun getModalHostSize(activity: Activity): Point {
 private class ModalHostShadowNode : LayoutShadowNode() {
     override fun addChildAt(child: ReactShadowNodeImpl, i: Int) {
         super.addChildAt(child, i)
-        themedContext?.currentActivity?.let {
+        getThemedContext()?.currentActivity?.let {
             val modalSize = getModalHostSize(it)
             child.setStyleWidth(modalSize.x.toFloat())
             child.setStyleHeight(modalSize.y.toFloat())

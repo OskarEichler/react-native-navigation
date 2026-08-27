@@ -13,7 +13,9 @@ function run() {
 }
 
 function runAndroidUnitTests() {
-  const conf = release ? 'testReleaseUnitTest' : 'testDebugUnitTest';
+  // AGP 9 only creates the library's debug unit-test variant by default.
+  // The aggregate task runs every available RNN unit-test variant.
+  const conf = ':react-native-navigation:test';
   if (android && process.env.JENKINS_CI) {
     const sdkmanager = '/usr/local/share/android-sdk/tools/bin/sdkmanager';
     exec.execSync(`yes | ${sdkmanager} --licenses`);
@@ -25,7 +27,7 @@ function runAndroidUnitTests() {
 
 function runIosUnitTests() {
   exec.execSync('yarn run pod-install');
-  testTarget('playground', 'iPhone 13', '15.5');
+  testTarget('playground', process.env.IOS_TEST_DEVICE || 'iPhone 13', process.env.IOS_TEST_OS || '15.5');
 }
 
 function testTarget(scheme, device, OS = 'latest') {
@@ -39,6 +41,7 @@ function testTarget(scheme, device, OS = 'latest') {
   -configuration ${conf}
   -derivedDataPath ./DerivedData/playground
   -UseModernBuildSystem=YES
+  DEAD_CODE_STRIPPING=NO
   ONLY_ACTIVE_ARCH=YES`);
 
   exec.execSync(`cd ./playground/ios &&

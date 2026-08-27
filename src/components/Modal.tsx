@@ -18,12 +18,11 @@ interface AnimatedModalProps extends RNNModalProps {
 const RNNModalViewManager = requireNativeComponent('RNNModalViewManager');
 
 const Container = (rnnProps: RNNModalProps) => {
-  const viewRef = useRef<View>(null);
+  const viewRef = useRef<React.ComponentRef<typeof View>>(null);
 
   useLayoutEffect(() => {
-    const windowWidth = Dimensions.get('window').width;
-    const windowHeight = Dimensions.get('window').height;
-    viewRef?.current?.setNativeProps({ width: windowWidth, height: windowHeight });
+    const { width, height } = Dimensions.get('window');
+    viewRef.current?.setNativeProps({ width, height });
   }, []);
 
   return (
@@ -40,21 +39,15 @@ export class Modal extends React.Component<RNNModalProps> {
     animationType: 'slide',
   };
 
-  constructor(props: RNNModalProps) {
-    super(props);
-  }
-
   render() {
-    const processed = this.proccessProps();
-    if (this.props.visible) {
-      return (
-        <RNNModalViewManager {...processed}>
-          <Container {...this.props} />
-        </RNNModalViewManager>
-      );
-    } else {
+    if (!this.props.visible) {
       return null;
     }
+    return (
+      <RNNModalViewManager {...this.proccessProps()}>
+        <Container {...this.props} />
+      </RNNModalViewManager>
+    );
   }
 
   private proccessProps() {
